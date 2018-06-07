@@ -12,6 +12,8 @@ class ViewController: UIViewController {
 
     var tap: UITapGestureRecognizer?
 
+    let shapes = [Shape.circle, Shape.square]
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.gray
@@ -35,17 +37,21 @@ class ViewController: UIViewController {
     @objc func singleTap(touch: UITapGestureRecognizer) {
         let touchPoint = touch.location(in: self.view)
 
-        let names = [Shape.circle, Shape.square]
+        let size = getRandomSize(touchPoint: touchPoint)
+        let rect = CGRect(x: touchPoint.x, y: touchPoint.y, width: size, height: size)
 
-        let rect = CGRect(x: touchPoint.x, y: touchPoint.y, width: 100, height: 100)
+        createShape(rect: rect)
+    }
 
+    func createShape(rect: CGRect) {
         var dynamicView: BaseView?
 
-        let random = names[Int(arc4random_uniform(UInt32(names.count)))]
+        let random = shapes[Int(arc4random_uniform(UInt32(shapes.count)))]
 
         switch random {
         case .circle:
             dynamicView = CircleView(frame: rect)
+            break
         case .square:
             dynamicView = SquareView(frame: rect)
             break
@@ -61,6 +67,14 @@ class ViewController: UIViewController {
             tap?.require(toFail: doubleTap)
             self.view.addSubview(dynamicView)
         }
+    }
 
+    func getRandomSize(touchPoint: CGPoint) -> CGFloat {
+        let screenSize = UIScreen.main.bounds
+        let maxWidth:CGFloat = screenSize.width - touchPoint.x
+        let maxHeight:CGFloat = screenSize.height - touchPoint.y
+
+        let size = CGFloat.random(min: 1, max: min(maxWidth, maxHeight))
+        return size
     }
 }

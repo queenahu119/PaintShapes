@@ -12,6 +12,10 @@ extension CGFloat {
     static func random() -> CGFloat {
         return CGFloat(arc4random()) / CGFloat(UInt32.max)
     }
+
+    static func random(min: CGFloat, max: CGFloat) -> CGFloat {
+        return .random() * (max - min) + min
+    }
 }
 
 extension UIColor {
