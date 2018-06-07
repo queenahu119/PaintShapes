@@ -10,6 +10,10 @@ import UIKit
 
 class SquareView: BaseView {
 
+    override func shapeType() -> Shape {
+        return Shape.square
+    }
+
     override func draw(_ rect: CGRect) {
         self.createRectangle()
 

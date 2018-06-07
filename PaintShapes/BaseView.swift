@@ -9,14 +9,14 @@
 import UIKit
 
 enum Shape {
-    case Square
-    case Circle
+    case square
+    case circle
 }
 
 class BaseView: UIView {
 
-    class func shapeType() -> Shape {
-        return Shape.Square
+    func shapeType() -> Shape {
+        return Shape.square
     }
 
     var path: UIBezierPath!
@@ -30,7 +30,8 @@ class BaseView: UIView {
         super.init(frame: frame)
 
         self.backgroundColor = UIColor.clear
-        backColor = UIColor.orange
+        backColor = UIColor.clear
+        setColor()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -40,19 +41,28 @@ class BaseView: UIView {
     override func draw(_ rect: CGRect) {
         backColor?.setFill()
         path.fill()
-
-        backColor?.setStroke()
-        path.stroke()
     }
 
-    func changeColor() {
-        backColor = .blue
+    let apiService = APIService()
+    func setColor() {
+        apiService.getRandomColor(completion: { [weak self] (color) in
+            DispatchQueue.main.async {
+                guard let color = color else {
+                    self?.backColor = UIColor.random()
+                    print("Use code to generate random colours")
+                    return
+                }
+                self?.backColor = color
+            }
+        })
     }
 
     @objc func doubleTap(touch:UITapGestureRecognizer){
         let touchPoint = touch.location(in: self)
 
-        backColor = .blue
+        setColor()
+
+        print("type: ", self.shapeType())
     }
 
 }

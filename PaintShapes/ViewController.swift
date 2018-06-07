@@ -35,7 +35,7 @@ class ViewController: UIViewController {
     @objc func singleTap(touch: UITapGestureRecognizer) {
         let touchPoint = touch.location(in: self.view)
 
-        let names = [Shape.Circle, Shape.Square]
+        let names = [Shape.circle, Shape.square]
 
         let rect = CGRect(x: touchPoint.x, y: touchPoint.y, width: 100, height: 100)
 
@@ -44,9 +44,9 @@ class ViewController: UIViewController {
         let random = names[Int(arc4random_uniform(UInt32(names.count)))]
 
         switch random {
-        case .Circle:
+        case .circle:
             dynamicView = CircleView(frame: rect)
-        case .Square:
+        case .square:
             dynamicView = SquareView(frame: rect)
             break
         default:
@@ -64,4 +64,3 @@ class ViewController: UIViewController {
 
     }
 }
-
