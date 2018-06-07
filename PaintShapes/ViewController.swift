@@ -18,6 +18,9 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor.gray
 
+        navigationItem.title = "Shapes"
+        navigationController?.navigationBar.isTranslucent = false
+
         tap = UITapGestureRecognizer(target: self, action: #selector(ViewController.singleTap(touch:)))
         if let tap = tap {
             tap.numberOfTapsRequired = 1
@@ -40,7 +43,7 @@ class ViewController: UIViewController {
         let size = getRandomSize(touchPoint: touchPoint)
         let rect = CGRect(x: touchPoint.x, y: touchPoint.y, width: size, height: size)
 
-        createShape(rect: rect)
+        self.createShape(rect: rect)
     }
 
     func createShape(rect: CGRect) {

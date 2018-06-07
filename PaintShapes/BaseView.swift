@@ -16,7 +16,7 @@ enum Shape {
 class BaseView: UIView {
 
     func shapeType() -> Shape {
-        return Shape.square
+        return Shape.circle
     }
 
     var path: UIBezierPath!
@@ -52,17 +52,27 @@ class BaseView: UIView {
                     print("Use code to generate random colours")
                     return
                 }
-                self?.backColor = color
+
+                self?.alpha = 0
+                self?.layer.setAffineTransform(CGAffineTransform(scaleX: 0.1, y: 0.1))
+
+                UIView.animate(withDuration: 2.0,
+                               delay: 0,
+                               usingSpringWithDamping: 0.2,
+                               initialSpringVelocity: 3.0,
+                               options: .allowUserInteraction,
+                               animations: { [weak self] in
+                                self?.alpha = 1
+                                self?.layer.setAffineTransform(CGAffineTransform.identity)
+                                self?.backColor = color
+                                self?.backgroundColor = UIColor.clear
+                    }, completion: nil)
             }
         })
     }
 
-    @objc func doubleTap(touch:UITapGestureRecognizer){
-        let touchPoint = touch.location(in: self)
-
+    @objc func doubleTap(touch:UITapGestureRecognizer) {
         setColor()
-
-        print("type: ", self.shapeType())
     }
 
 }
