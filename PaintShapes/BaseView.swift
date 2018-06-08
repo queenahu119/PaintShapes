@@ -75,4 +75,7 @@ class BaseView: UIView {
         setColor()
     }
 
+    @objc func oneTap(touch:UITapGestureRecognizer) {
+        
+    }
 }

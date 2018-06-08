@@ -8,6 +8,8 @@
 
 import UIKit
 
+let minSize:CGFloat = 5.0
+
 class ViewController: UIViewController {
 
     var tap: UITapGestureRecognizer?
@@ -21,12 +23,7 @@ class ViewController: UIViewController {
         navigationItem.title = "Shapes"
         navigationController?.navigationBar.isTranslucent = false
 
-        tap = UITapGestureRecognizer(target: self, action: #selector(ViewController.singleTap(touch:)))
-        if let tap = tap {
-            tap.numberOfTapsRequired = 1
-            view.addGestureRecognizer(tap)
-        }
-
+        setupTapGesture()
     }
 
     override func didReceiveMemoryWarning() {
@@ -37,6 +34,15 @@ class ViewController: UIViewController {
         super.viewDidAppear(animated)
     }
 
+    func setupTapGesture() {
+        tap = UITapGestureRecognizer(target: self, action: #selector(ViewController.singleTap(touch:)))
+        if let tap = tap {
+            tap.numberOfTapsRequired = 1
+            view.addGestureRecognizer(tap)
+        }
+    }
+
+    // MARK: - GestureRecognizer
     @objc func singleTap(touch: UITapGestureRecognizer) {
         let touchPoint = touch.location(in: self.view)
 
@@ -46,9 +52,10 @@ class ViewController: UIViewController {
         self.createShape(rect: rect)
     }
 
-    func createShape(rect: CGRect) {
-        var dynamicView: BaseView?
+    // MARK: - private function
 
+    fileprivate func createShape(rect: CGRect) {
+        var dynamicView: BaseView?
         let random = shapes[Int(arc4random_uniform(UInt32(shapes.count)))]
 
         switch random {
@@ -69,15 +76,22 @@ class ViewController: UIViewController {
 
             tap?.require(toFail: doubleTap)
             self.view.addSubview(dynamicView)
+
+            // Touch the shapes
+            let shapesTap = UITapGestureRecognizer(target: dynamicView, action: #selector(SquareView.oneTap(touch:)))
+            shapesTap.numberOfTapsRequired = 1
+            dynamicView.addGestureRecognizer(shapesTap)
+
+            tap?.require(toFail: shapesTap)
         }
     }
 
-    func getRandomSize(touchPoint: CGPoint) -> CGFloat {
+    fileprivate func getRandomSize(touchPoint: CGPoint) -> CGFloat {
         let screenSize = UIScreen.main.bounds
         let maxWidth:CGFloat = screenSize.width - touchPoint.x
         let maxHeight:CGFloat = screenSize.height - touchPoint.y
 
-        let size = CGFloat.random(min: 1, max: min(maxWidth, maxHeight))
+        let size = CGFloat.random(min: minSize, max: min(maxWidth, maxHeight))
         return size
     }
 }
