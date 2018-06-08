@@ -24,6 +24,7 @@ class ViewController: UIViewController {
         navigationController?.navigationBar.isTranslucent = false
 
         setupTapGesture()
+        setupLeftSwipe()
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,6 +43,12 @@ class ViewController: UIViewController {
         }
     }
 
+    func setupLeftSwipe() {
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ViewController.leftSwiped(gesture:)))
+        swipeLeft.direction = UISwipeGestureRecognizerDirection.left
+        self.view.addGestureRecognizer(swipeLeft)
+    }
+
     // MARK: - GestureRecognizer
     @objc func singleTap(touch: UITapGestureRecognizer) {
         let touchPoint = touch.location(in: self.view)
@@ -50,6 +57,15 @@ class ViewController: UIViewController {
         let rect = CGRect(x: touchPoint.x, y: touchPoint.y, width: size, height: size)
 
         self.createShape(rect: rect)
+    }
+
+    @objc func leftSwiped(gesture: UISwipeGestureRecognizer) {
+        switch gesture.direction {
+        case UISwipeGestureRecognizerDirection.left:
+            resetCanvas()
+        default: break
+        }
+
     }
 
     // MARK: - private function
@@ -93,5 +109,12 @@ class ViewController: UIViewController {
 
         let size = CGFloat.random(min: minSize, max: min(maxWidth, maxHeight))
         return size
+    }
+
+    func resetCanvas() {
+        print("Clear Canvas.")
+        for subView in view.subviews {
+            subView.removeFromSuperview()
+        }
     }
 }
