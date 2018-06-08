@@ -13,6 +13,7 @@ let minSize:CGFloat = 5.0
 class ViewController: UIViewController {
 
     var tap: UITapGestureRecognizer?
+    var viewList: [UIView?] = []
 
     let shapes = [Shape.circle, Shape.square]
 
@@ -52,11 +53,7 @@ class ViewController: UIViewController {
     // MARK: - GestureRecognizer
     @objc func singleTap(touch: UITapGestureRecognizer) {
         let touchPoint = touch.location(in: self.view)
-
-        let size = getRandomSize(touchPoint: touchPoint)
-        let rect = CGRect(x: touchPoint.x, y: touchPoint.y, width: size, height: size)
-
-        self.createShape(rect: rect)
+        self.createShape(touchPoint: touchPoint)
     }
 
     @objc func leftSwiped(gesture: UISwipeGestureRecognizer) {
@@ -65,25 +62,13 @@ class ViewController: UIViewController {
             resetCanvas()
         default: break
         }
-
     }
 
     // MARK: - private function
 
-    fileprivate func createShape(rect: CGRect) {
-        var dynamicView: BaseView?
+    fileprivate func createShape(touchPoint:CGPoint) {
         let random = shapes[Int(arc4random_uniform(UInt32(shapes.count)))]
-
-        switch random {
-        case .circle:
-            dynamicView = CircleView(frame: rect)
-            break
-        case .square:
-            dynamicView = SquareView(frame: rect)
-            break
-        default:
-            break
-        }
+        let dynamicView: BaseView? = getNotOverlapRect(shapeType: random, touchPoint: touchPoint)
 
         if let dynamicView = dynamicView {
             let doubleTap = UITapGestureRecognizer(target: dynamicView, action: #selector(SquareView.doubleTap(touch:)))
@@ -92,6 +77,7 @@ class ViewController: UIViewController {
 
             tap?.require(toFail: doubleTap)
             self.view.addSubview(dynamicView)
+            viewList.append(dynamicView)
 
             // Touch the shapes
             let shapesTap = UITapGestureRecognizer(target: dynamicView, action: #selector(SquareView.oneTap(touch:)))
@@ -102,13 +88,56 @@ class ViewController: UIViewController {
         }
     }
 
-    fileprivate func getRandomSize(touchPoint: CGPoint) -> CGFloat {
-        let screenSize = UIScreen.main.bounds
-        let maxWidth:CGFloat = screenSize.width - touchPoint.x
-        let maxHeight:CGFloat = screenSize.height - touchPoint.y
+    fileprivate func getNotOverlapRect(shapeType: Shape, touchPoint:CGPoint) -> BaseView? {
+        var dynamicView: BaseView? = nil
+        var rect: CGRect
 
-        let size = CGFloat.random(min: minSize, max: min(maxWidth, maxHeight))
-        return size
+        // Initial: Get random number for not over the screen
+        let diffWidth:CGFloat = UIScreen.main.bounds.size.width - touchPoint.x
+        let diffHeight:CGFloat = UIScreen.main.bounds.size.height - touchPoint.y
+        let maxShapeSize = min(diffWidth, diffHeight)
+        var currentMaxSize = CGSize(width: maxShapeSize, height: maxShapeSize)
+
+        var isOverlap = false
+
+        repeat {
+            if (Int(minSize) >= Int(currentMaxSize.width)) {
+                dynamicView = nil
+            } else {
+                // Get random number for minSize to currentMaxSize
+                let size = CGFloat.random(min: minSize, max: currentMaxSize.width)
+                rect = CGRect(x: touchPoint.x, y: touchPoint.y, width: size, height: size)
+                currentMaxSize = CGSize(width: size, height: size)
+
+                switch shapeType {
+                case .circle:
+                    dynamicView = CircleView(frame: rect)
+                case .square:
+                    dynamicView = SquareView(frame: rect)
+                }
+
+                isOverlap = isOverlay(rect: (dynamicView?.frame)!)
+                if (isOverlap) {
+                    dynamicView = nil
+                }
+            }
+
+        } while ((Int(minSize) < Int(currentMaxSize.width)) && isOverlap)
+
+        return dynamicView
+    }
+
+    fileprivate func isOverlay(rect: CGRect) -> Bool {
+        for subView in viewList {
+            guard let subView = subView else {
+                return false
+            }
+
+            if (subView.frame.intersects(rect)) {
+                return true
+            }
+        }
+        return false
     }
 
     func resetCanvas() {
@@ -116,5 +145,7 @@ class ViewController: UIViewController {
         for subView in view.subviews {
             subView.removeFromSuperview()
         }
+
+        viewList = []
     }
 }
