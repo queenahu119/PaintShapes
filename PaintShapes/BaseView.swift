@@ -30,7 +30,7 @@ class BaseView: UIView {
         super.init(frame: frame)
 
         self.backgroundColor = UIColor.clear
-        backColor = UIColor.clear
+        backColor = UIColor.white
         setColor()
     }
 
@@ -45,30 +45,33 @@ class BaseView: UIView {
 
     let apiService = APIService()
     func setColor() {
-        apiService.getRandomColor(completion: { [weak self] (color) in
-            DispatchQueue.main.async {
-                guard let color = color else {
-                    self?.backColor = UIColor.random()
-                    print("Use code to generate random colours")
-                    return
-                }
+        DispatchQueue.global().async { [weak self] () in
+            self?.apiService.getRandomColor(completion: { [weak self] (color) in
+                DispatchQueue.main.async { [weak self] () in
+                    guard let color = color else {
+                        self?.backColor = UIColor.random()
+                        print("Use code to generate random colours")
+                        return
+                    }
 
-                self?.alpha = 0
-                self?.layer.setAffineTransform(CGAffineTransform(scaleX: 0.1, y: 0.1))
+                    self?.alpha = 0
+                    self?.layer.setAffineTransform(CGAffineTransform(scaleX: 0.1, y: 0.1))
 
-                UIView.animate(withDuration: 2.0,
-                               delay: 0,
-                               usingSpringWithDamping: 0.2,
-                               initialSpringVelocity: 3.0,
-                               options: .allowUserInteraction,
-                               animations: { [weak self] in
-                                self?.alpha = 1
-                                self?.layer.setAffineTransform(CGAffineTransform.identity)
-                                self?.backColor = color
-                                self?.backgroundColor = UIColor.clear
+                    UIView.animate(withDuration: 2.0,
+                                   delay: 0,
+                                   usingSpringWithDamping: 0.2,
+                                   initialSpringVelocity: 3.0,
+                                   options: .allowUserInteraction,
+                                   animations: { [weak self] in
+                                    self?.alpha = 1
+                                    self?.layer.setAffineTransform(CGAffineTransform.identity)
+                                    self?.backColor = color
+                                    self?.backgroundColor = UIColor.clear
                     }, completion: nil)
-            }
-        })
+                }
+            })
+        }
+
     }
 
     @objc func doubleTap(touch:UITapGestureRecognizer) {
