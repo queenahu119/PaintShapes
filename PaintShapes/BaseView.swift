@@ -31,7 +31,7 @@ class BaseView: UIView {
 
         self.backgroundColor = UIColor.clear
         backColor = UIColor.white
-        setColor()
+        setColorWithAnimation()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -54,28 +54,32 @@ class BaseView: UIView {
                         return
                     }
 
-                    self?.alpha = 0
-                    self?.layer.setAffineTransform(CGAffineTransform(scaleX: 0.1, y: 0.1))
-
-                    UIView.animate(withDuration: 2.0,
-                                   delay: 0,
-                                   usingSpringWithDamping: 0.2,
-                                   initialSpringVelocity: 3.0,
-                                   options: .allowUserInteraction,
-                                   animations: { [weak self] in
-                                    self?.alpha = 1
-                                    self?.layer.setAffineTransform(CGAffineTransform.identity)
-                                    self?.backColor = color
-                                    self?.backgroundColor = UIColor.clear
-                    }, completion: nil)
+                    self?.backColor = color
+                    self?.backgroundColor = UIColor.clear
                 }
             })
         }
 
     }
 
+    func setColorWithAnimation() {
+        self.alpha = 0
+        self.layer.setAffineTransform(CGAffineTransform(scaleX: 0.1, y: 0.1))
+
+        UIView.animate(withDuration: 2.0,
+                       delay: 0,
+                       usingSpringWithDamping: 0.2,
+                       initialSpringVelocity: 3.0,
+                       options: .allowUserInteraction,
+                       animations: { [weak self] in
+                        self?.alpha = 1
+                        self?.layer.setAffineTransform(CGAffineTransform.identity)
+                        self?.setColor()
+        }, completion: nil)
+    }
+
     @objc func doubleTap(touch:UITapGestureRecognizer) {
-        setColor()
+        setColorWithAnimation()
     }
 
     @objc func oneTap(touch:UITapGestureRecognizer) {
